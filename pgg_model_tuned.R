@@ -28,7 +28,7 @@ isCont = continuous[2]
 
 # values for the parameters of interest
 if(isCont){
-  c_mins = c(0.7)
+  c_mins = c(6)
 } else {
   c_mins = c(6)
 }
@@ -51,22 +51,22 @@ for(c_min in c_mins){
         # 1) if discrete, scale = 0 (no contribution) to 9 (maximum possible amount of contribution) (discrete sequence of values)
         # 2) if continuous, scale = 0 (no contribution) to 1 (maximum possible amount of contribution) (uniform distribution)
         if(isCont){
-          inherited_contribution[[1]] = rnorm(n, c_min, norm_intensity)
+          inherited_contribution[[1]] = rep(b, n)#rnorm(n, c_min, norm_intensity)
         } else {
           c = 0:9
           # sample inherited contributions for the first generation (all start from 2)
-          inherited_contribution[[1]] = inherited_c(c, n)
+          inherited_contribution[[1]] = rep(b, n)
         }
         
         # some of the inherited contribution values will change due to mutation (social learning)
         # actual contributions for the first generation after mutants (symmetric) are introduced
-        actual_contribution[[1]] = mutation_sym(inherited_contribution[[1]], isCont, n, mu)
+        actual_contribution[[1]] = mutation_sym(inherited_contribution[[1]], isCont, n, mu, b)
         # fitness of each individual in the first generation
         fitness[[1]] = f(actual_contribution[[1]], b, m, n, c_min, norm_intensity)
         
         for(i in 2:gen){
           inherited_contribution[[i]] = inherited_c(actual_contribution[[i-1]], n, fitness[[i-1]])
-          actual_contribution[[i]] = mutation_sym(inherited_contribution[[i]], isCont, n, mu)
+          actual_contribution[[i]] = mutation_sym(inherited_contribution[[i]], isCont, n, mu, b)
           fitness[[i]] = f(actual_contribution[[i]], b, m, n, c_min, norm_intensity)
         }
         
