@@ -172,13 +172,13 @@ penalty = function(contribution, c_norm, norm_intensity, isAdditive, n){
     dev = abs(contribution-c_norm)
     #calculate penalty value
     p = dev*norm_intensity
-    #those below the minimum contribution threshold get assigned penalties
+    #those below the contribution norm get assigned penalties
     #those equal or above will receive no penalty(=0)
     penalty = ifelse(contribution<c_norm, p, 0)
   } else{
-    #calculate penalty
-    p = (dnorm(contribution, c_norm, 1/norm_intensity)/dnorm(c_norm, c_norm, 1/norm_intensity))*n
-    #those below the minimum contribution threshold get assigned penalties
+    #calculate penalty. Here, the penalty will be a value between 0 and 1. The higher the value, the lower the penalty
+    p = dnorm(contribution, c_norm, 1/norm_intensity)/dnorm(c_norm, c_norm, 1/norm_intensity)
+    #those below the contribution norm get assigned penalties
     #those equal or above will receive no penalty(=1)
     penalty = ifelse(contribution<c_norm, p, 1)
   }
