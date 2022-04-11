@@ -81,7 +81,7 @@ norm = function(c_min, contribution){
 #
 # Return:
 # a vector of length n (number of individuals) that contains the contributions of each individual in the new generation
-inherited_c = function(parent_contribution, n, parent_fitness = NULL){
+inherited_c = function(parent_contribution, n, parent_fitness){
   return(sample(parent_contribution, n, replace = TRUE, parent_fitness))
 }
 
