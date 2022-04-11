@@ -119,16 +119,16 @@ mutation = function(old_contribution, c, n, mu){
 # Return:
 # a vector of length n (number of individuals) that contains the contributions of each individual in the population after symmetric mutation is applied
 mutation_sym = function(old_contribution,isCont, n, mu, b){
-  # determine which of the individuals will have the mutated contribution (a vector of 0s and 1s)
-  does_mutate = (runif(n, 0, 1)<mu)*1
   if(isCont){
     # sample mutated contributions
     mutated_contribution = old_contribution + rnorm(n, 0, 1)
     # change the contribution value of those who choose to socially learn (switch their inherited c to mutated c)
-    new_contribution = mutated_contribution*does_mutate + old_contribution*(1-does_mutate)
+    new_contribution = mutated_contribution
     new_contribution[which(new_contribution<0)]=0
     new_contribution[which(new_contribution>=b)]=b
   } else {
+    # determine which of the individuals will have the mutated contribution (a vector of 0s and 1s)
+    does_mutate = (runif(n, 0, 1)<mu)*1
     # sample mutated contributions
     mutated_contribution = old_contribution+sample(c(-1,1), n, replace = TRUE)
     # change the contribution value of those who choose to socially learn (switch their inherited c to mutated c)
