@@ -159,20 +159,14 @@ payoff = function(contribution, m, n){
 # Return:
 # a vector of length n (number of individuals) that contains the penalty of each individual in the population
 penalty = function(contribution, c_norm, norm_intensity, isAdditive, n){
-  if(isAdditive){
-    #degree of deviance of each individual in the population
-    dev = abs(contribution-c_norm)
+  #degree of deviance of each individual in the population
+  dev = pmin(0, c_norm - contribution)
+  if(isAdditive){  
     #calculate penalty value
-    p = dev*norm_intensity
-    #those below the contribution norm get assigned penalties
-    #those equal or above will receive no penalty(=0)
-    penalty = ifelse(contribution<c_norm, p, 0)
+    penalty = dev*norm_intensity
   } else{
     #calculate penalty. Here, the penalty will be a value between 0 and 1. The higher the value, the lower the penalty
-    p = dnorm(contribution, c_norm, 1/norm_intensity)/dnorm(c_norm, c_norm, 1/norm_intensity)
-    #those below the contribution norm get assigned penalties
-    #those equal or above will receive no penalty(=1)
-    penalty = ifelse(contribution<c_norm, p, 1)
+    penalty = dnorm(dev, 0, 1/norm_intensity)/dnorm(0, 0, 1/norm_intensity)
   }
   return(penalty)
 }
