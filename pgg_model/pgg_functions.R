@@ -125,13 +125,11 @@ mutation_sym = function(old_contribution,isCont, n, mu, b){
     # determine which of the individuals will have the mutated contribution (a vector of 0s and 1s)
     does_mutate = (runif(n, 0, 1)<mu)*1
     # sample mutated contributions
-    mutated_contribution = old_contribution+sample(c(-1,1), n, replace = TRUE)
+    mutated_contribution = old_contribution + sample(c(-1,1), n, replace = TRUE)
     # change the contribution value of those who choose to socially learn (switch their inherited c to mutated c)
     new_contribution = mutated_contribution*does_mutate + old_contribution*(1-does_mutate)
-    new_contribution[which(new_contribution==-1)]=1
-    new_contribution[which(new_contribution==10)]=8
+    return(pmin(9, pmax(0, new_contribution)))
   }
-  return(new_contribution)
 }
 
 # Description:
