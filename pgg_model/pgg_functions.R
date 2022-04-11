@@ -30,20 +30,19 @@ pgg_model = function(n = 100, m = 1.5, b = 15, gen = 1000, mu = 0.01, init_val =
     # initialize a list that will be populated with the probabilities (fitness) of the contributions in each generation
     fitness = vector(mode = "list", length = gen)
     
-    # determine the inherited contributions of the first generation depending on if the contribution is discrete or continuous
-    inherited_contribution[[1]] = rep(init_val, n)
-    # some of the inherited contribution values will change due to mutation (social learning)
-    # actual contributions for the first generation after mutants (symmetric) are introduced
-    actual_contribution[[1]] = mutation_sym(inherited_contribution[[1]], isCont, n, mu, b)
-    # determine if the contribution norm is a minimum threshold or the average contribution in that generation
-    c_norm = norm(c_min, actual_contribution[[1]])
-    # fitness of each individual in the first generation
-    fitness[[1]] = f(actual_contribution[[1]], b, m, n, c_norm, norm_intensity, isAdditive)
-    
-    for(i in 2:gen){
-      inherited_contribution[[i]] = inherited_c(actual_contribution[[i-1]], n, fitness[[i-1]])
+    for (i in 1:gen) {
+      # determine the inherited contributions, first generation is a special case, later generations depend on if the contribution is discrete or continuous
+      if (i == 1) {
+        inherited_contribution[[i]] = rep(init_val, n)
+      } else {
+        inherited_contribution[[i]] = inherited_c(actual_contribution[[i-1]], n, fitness[[i-1]])
+      }
+      # some of the inherited contribution values will change due to mutation (social learning)
+      # actual contributions for the first generation after mutants (symmetric) are introduced
       actual_contribution[[i]] = mutation_sym(inherited_contribution[[i]], isCont, n, mu, b)
+      # determine if the contribution norm is a minimum threshold or the average contribution in that generation
       c_norm = norm(c_min, actual_contribution[[i]])
+      # fitness of each individual
       fitness[[i]] = f(actual_contribution[[i]], b, m, n, c_norm, norm_intensity, isAdditive)
     }
     
