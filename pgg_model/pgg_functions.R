@@ -128,7 +128,7 @@ mutation_sym = function(old_contribution,isCont, n, mu, b){
     mutated_contribution = old_contribution + sample(c(-1,1), n, replace = TRUE)
     # change the contribution value of those who choose to socially learn (switch their inherited c to mutated c)
     new_contribution = mutated_contribution*does_mutate + old_contribution*(1-does_mutate)
-    return(pmin(9, pmax(0, new_contribution)))
+    return(pmin(b, pmax(0, new_contribution)))
   }
 }
 
