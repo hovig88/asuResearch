@@ -160,7 +160,7 @@ payoff = function(contribution, m, n){
 # a vector of length n (number of individuals) that contains the penalty of each individual in the population
 penalty = function(contribution, c_norm, norm_intensity, isAdditive, n){
   #degree of deviance of each individual in the population
-  dev = pmin(0, c_norm - contribution)
+  dev = pmax(0, c_norm - contribution)
   if(isAdditive){  
     #calculate penalty value
     penalty = dev*norm_intensity
