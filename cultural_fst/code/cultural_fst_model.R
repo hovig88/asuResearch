@@ -28,14 +28,13 @@ model_string = "model {
   for (i in 1:N) {
     agemate_no_report[i] ~ dbern(p[i])
     logit(p[i]) <- baseline[ethnic_group[i] + 1] +
-                   beta[3]*sex[i] +
+                   beta[1]*sex[i] +
                    marital_status_effect[marital_status[i] + 1] +
                    territorial_section_effect[territorial_section[i] + 1]*equals(ethnic_group[i], 3) +
-                   beta[5]*territorial_section[i] +
-                   beta[6]*attend_school[i] +
-                   beta[7]*school_yrs[i] +
-                   beta[8]*town[i] +
-                   beta[9]*town_yrs[i]
+                   beta[2]*attend_school[i] +
+                   beta[3]*school_yrs[i] +
+                   beta[4]*town[i] +
+                   beta[5]*town_yrs[i]
   }
   
   for (i in 1:4) {
@@ -49,8 +48,7 @@ model_string = "model {
     territorial_section_effect[i] ~ dnorm(0, 1/sd_territorial_section^2)
   }
   sd_territorial_section ~ dexp(1)
-  beta[1] ~ dnorm(0,1/5^2)
-  for(i in 2:9){
+  for(i in 1:5){
     beta[i] ~ dnorm(0, 1/0.5^2)
   }
 } "
@@ -58,7 +56,7 @@ model_string = "model {
 #running the model in JAGS
 model <- jags.model(textConnection(model_string), data=data_subset, n.chains=3)
 nodes <- c("baseline", "beta", "marital_status_effect", "sd_marital_status", "territorial_section_effect", "sd_territorial_section")
-samples <- coda.samples(model,nodes,5000,1)
+samples <- coda.samples(model,nodes,10000,2)
 
 gelman.diag(samples)
 autocorr.diag(samples)
