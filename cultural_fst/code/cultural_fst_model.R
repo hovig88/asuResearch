@@ -27,8 +27,7 @@ for (i in 1:500) {
 model_string = "model {
   for (i in 1:N) {
     agemate_no_report[i] ~ dbern(p[i])
-    logit(p[i]) <- beta[1] +
-                   beta[2]*ethnic_group[i] +
+    logit(p[i]) <- baseline[ethnic_group[i] + 1] +
                    beta[3]*sex[i] +
                    beta[4]*marital_status[i] +
                    beta[5]*territorial_section[i] +
@@ -38,6 +37,9 @@ model_string = "model {
                    beta[9]*town_yrs[i]
   }
   
+  for (i in 1:4) {
+    baseline[i] ~ dnorm(0, 1/5^2)
+  }
   beta[1] ~ dnorm(0,1/5^2)
   for(i in 2:9){
     beta[i] ~ dnorm(0, 1/0.5^2)
@@ -46,8 +48,8 @@ model_string = "model {
 
 #running the model in JAGS
 model <- jags.model(textConnection(model_string), data=data_subset, n.chains=3)
-nodes <- c("beta")
-samples <- coda.samples(model,nodes,50000,1)
+nodes <- c("baseline", "beta")
+samples <- coda.samples(model,nodes,5000,1)
 
 gelman.diag(samples)
 autocorr.diag(samples)
