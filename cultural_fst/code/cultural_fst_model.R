@@ -13,7 +13,7 @@ data_subset = list(N=length(data$ethnic_group), agemate_no_report = data$agemate
                    school_yrs=data$school_yrs, town=data$town, town_yrs=data$town_yrs)
 
 # check priors
-plot(agemate_no_report~ethnic_group, bty="n", pch=16, col="aquamarine3")
+plot(data$agemate_no_report~data$ethnic_group, bty="n", pch=16, col="aquamarine3")
 ints <- rnorm(500, 0, 5)
 slopes <- rnorm(500, 0, 0.5)
 x <- seq(0, 10, 0.1)
@@ -76,18 +76,51 @@ extract <- function(var, samples) {
 }
 
 #extract the generated samples of each parameter
-base <- extract("beta[1]", samples)
-ethnic_group_effect <- extract("beta[2]", samples)
-sex_effect <- extract("beta[3]", samples)
-marital_status_effect <- extract("beta[4]", samples)
-territorial_section_effect = extract("beta[5]", samples)
-attend_school_effect = extract("beta[6]", samples)
-school_yrs_effect = extract("beta[7]", samples)
-town_effect = extract("beta[8]", samples)
-town_yrs_effect = extract("beta[9]", samples)
+#baseline for each ethnic group
+b0_Borana <- extract("baseline[1]", samples)
+b0_Rendille <- extract("baseline[2]", samples)
+b0_Samburu <- extract("baseline[3]", samples)
+b0_Turkana <- extract("baseline[4]", samples)
+
+sex_effect <- extract("beta[1]", samples)
+attend_school_effect <- extract("beta[2]", samples)
+school_yrs_effect <- extract("beta[3]", samples)
+town_effect <- extract("beta[4]", samples)
+town_yrs_effect <- extract("beta[5]", samples)
+
+#marital status effect
+ms_divorced_effect <- extract("marital_status_effect[1]", samples)
+ms_married_effect <- extract("marital_status_effect[2]", samples)
+ms_single_effect <- extract("marital_status_effect[3]", samples)
+ms_unofficial_effect <- extract("marital_status_effect[4]", samples)
+ms_widowed_effect <- extract("marital_status_effect[5]", samples)
+ms_sd <- extract("sd_marital_status", samples)
+
+#territorial section effect
+no_ts_effect <- extract("territorial_section_effect[1]", samples)
+ts_kwatela_effect <- extract("territorial_section_effect[2]", samples)
+ts_ngibochoros_effect <- extract("territorial_section_effect[3]", samples)
+ts_ngiyapakuno_effect <- extract("territorial_section_effect[4]", samples)
 
 #create color palette for histogram plots
-col_palette = brewer.pal(10, "Paired")
+col_palette = brewer.pal(9, "Set1")
+
+#histogram of baselines
+x1 = b0_Borana
+p1 = exp(x1)/(1+exp(x1))
+hist(p1, col = NULL, xlim = c(0,1), border = col_palette[2])
+#histogram of baselines
+x1 = b0_Rendille
+p1 = exp(x1)/(1+exp(x1))
+hist(p1, col = NULL, border = col_palette[3], add = T)
+#histogram of baselines
+x1 = b0_Samburu
+p1 = exp(x1)/(1+exp(x1))
+hist(p1, col = NULL, border = col_palette[4], add = T)
+#histogram of baselines
+x1 = b0_Turkana
+p1 = exp(x1)/(1+exp(x1))
+hist(p1, col = NULL, border = col_palette[5], add = T)
 
 #histogram of baseline
 x1 = base
@@ -133,4 +166,3 @@ hist(p8, col = NULL, border = col_palette[9], add = T)
 x9 = base + town_yrs_effect
 p9 = exp(x9)/(1+exp(x9))
 hist(p9, col = NULL, border = col_palette[10], add = T)
-
