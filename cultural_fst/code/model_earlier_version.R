@@ -1,79 +1,104 @@
+# start = Sys.time()
+
 #load library
 library(rjags)
 library(HDInterval)
 library(RColorBrewer)
 
 #read csv file
-data = read.csv("../data/cultural_fst_age_no_report.csv", header = T)
-
-#data
-data_subset = list(N=length(data$ethnic_group), agemate_no_report = data$agemate_no_report, 
-                   ethnic_group=data$ethnic_group, sex=data$sex, marital_status=data$marital_status, 
-                   territorial_section=data$territorial_section, attend_school=data$attend_school, 
-                   school_yrs=data$school_yrs, town=data$town, town_yrs=data$town_yrs)
-
-# check priors
-plot(data$agemate_no_report~data$ethnic_group, bty="n", pch=16, col="aquamarine3")
-ints <- rnorm(500, 0, 5)
-slopes <- rnorm(500, 0, 0.5)
-x <- seq(0, 10, 0.1)
-for (i in 1:500) {
-  lp <- ints[i] + slopes[i]*x
-  y <- exp(lp)/(1+exp(lp))
-  lines(y~x, col=rgb(0, 0, 0, 0.1))
-}
+data = read.csv("../data/fst_data_coded.csv", header = T)
+data = data[,c(1:11,11+order(apply(data[,12:60], MARGIN = 2, var), decreasing = TRUE))]
+data$Y = data[,12:60]
 
 #building the model in JAGS
-model_string = "model {
-  for (i in 1:N) {
-    agemate_no_report[i] ~ dbern(p[i])
-    logit(p[i]) <- baseline[ethnic_group[i] + 1] +
-                   beta[1]*sex[i] +
-                   marital_status_effect[marital_status[i] + 1] +
-                   territorial_section_effect[territorial_section[i] + 1]*equals(ethnic_group[i], 3) +
-                   beta[2]*attend_school[i] +
-                   beta[3]*school_yrs[i] +
-                   beta[4]*town[i] +
-                   beta[5]*town_yrs[i]
+model_string = "
+model {
+  for (j in c(1,49)){
+    for (i in 1:745) {
+      Y[i,j] ~ dbern(p[i,j])
+      logit(p[i,j]) <- beta[1,j] +
+                     beta[2,j]*sex[i] +
+                     beta[3,j]*school_yrs[i] +
+                     beta[4,j]*town_yrs[i] +
+                     marital_status_effect[marital_status[i] + 1,j] +
+                     ethnic_group_effect[ethnic_group[i] + 1,j] +
+                     territorial_section_effect[territorial_section[i] + 1,j]*equals(ethnic_group[i], 3) +
+                     clan_effect[clan[i] + 1,j] +
+                     subclan_effect[subclan[i] + 1,j]*(1 - equals(ethnic_group[i], 3))
+    }
+    
+    beta[1,j] ~ dnorm(0, 1/1^2)
+    for(i in 2:4){
+      beta[i,j] ~ dnorm(0, 1/0.5^2)
+    }
+    for (i in 1:5) {
+      marital_status_effect[i,j] ~ dnorm(0, 1/sd_marital_status^2)
+    }
+    for (i in 1:4) {
+      ethnic_group_effect[i,j] ~ dnorm(0, 1/sd_ethnic_group^2)
+    }
+    for (i in 1:4) {
+      territorial_section_effect[i,j] ~ dnorm(0, 1/sd_territorial_section^2)
+    }
+    for (i in 1:9) {
+      clan_effect[i,j] ~ dnorm(0, 1/sd_clan^2)
+    }
+    for (i in 1:34) {
+      subclan_effect[i,j] ~ dnorm(0, 1/sd_subclan^2)
+    }
   }
-  
-  for (i in 1:4) {
-    baseline[i] ~ dnorm(0, 1/5^2)
-  }
-  for (i in 1:5) {
-    marital_status_effect[i] ~ dnorm(0, 1/sd_marital_status^2)
-  }
+  sd_ethnic_group ~ dexp(2)
+  sd_territorial_section ~ dexp(2)
+  sd_clan ~ dexp(2)
+  sd_subclan ~ dexp(2)
   sd_marital_status ~ dexp(2)
-  for (i in 1:4) {
-    territorial_section_effect[i] ~ dnorm(0, 1/sd_territorial_section^2)
-  }
-  sd_territorial_section ~ dexp(1)
-  for(i in 1:5){
-    beta[i] ~ dnorm(0, 1/0.5^2)
-  }
 } "
 
 #running the model in JAGS
-model <- jags.model(textConnection(model_string), data=data_subset, n.chains=3)
-nodes <- c("baseline", "beta", "marital_status_effect", "sd_marital_status", "territorial_section_effect", "sd_territorial_section")
-samples <- coda.samples(model,nodes,10000,2)
+n.chains = 3
+n.iter = 1000
+model <- jags.model(textConnection(model_string), data=data, n.chains=n.chains)
+nodes <- c("beta", "marital_status_effect", "sd_marital_status",
+           "ethnic_group_effect", "sd_ethnic_group",
+           "territorial_section_effect", "sd_territorial_section",
+           "clan_effect", "sd_clan",
+           "subclan_effect", "sd_subclan")
+samples <- coda.samples(model=model, variable.names=nodes, n.iter=n.iter, thin=1)
+
+# end = Sys.time()
+
+# end - start
 
 gelman.diag(samples)
 autocorr.diag(samples)
 crosscorr.plot(samples)
 effectiveSize(samples)
+hist(effectiveSize(samples))
+range(effectiveSize(samples))
 
 summary(samples)
 
-#function to extract samples generated from the markov chains
-extract <- function(var, samples) {
-  n_chains <- length(samples)
-  samps <- vector()
-  for (i in 1:n_chains) {
-    samps <- c(samps, samples[[i]][,var])
-  }
-  return(samps)
-}
+#we expect to see fuzziness from the following, but we don't:
+plot(extract("sd_marital_status", samples))
+
+hist(extract("sd_marital_status", samples))
+
+#marital status doesn't capture variation well across all individuals for the norm at column 27
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[1,27]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[2,27]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[3,27]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[4,27]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[5,27]", samples))
+#what about column 26? (KIDNAP - has most variation)
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[1,26]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[2,26]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[3,26]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[4,26]", samples))
+plot(extract("sd_marital_status", samples), extract("marital_status_effect[5,26]", samples))
+
+hist(rexp(10000, 2))
+hist(rexp(10000, 4))
+
 
 #extract the generated samples of each parameter
 #baseline for each ethnic group
@@ -101,7 +126,7 @@ no_ts_effect <- extract("territorial_section_effect[1]", samples)
 ts_kwatela_effect <- extract("territorial_section_effect[2]", samples)
 ts_ngibochoros_effect <- extract("territorial_section_effect[3]", samples)
 ts_ngiyapakuno_effect <- extract("territorial_section_effect[4]", samples)
-
+ts_sd <- extract("sd_territorial_section", samples)
 #create color palette for histogram plots
 col_palette = brewer.pal(9, "Set1")
 
