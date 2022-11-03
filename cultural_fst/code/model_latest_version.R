@@ -28,7 +28,7 @@ model {
     
     ## PRIORS ##
     
-    for (i in c(1:3,7:9)) {
+    for (i in c(1:9)) {
       base_clan[i,j] ~ dnorm(ethnic_group_effect[ethnic_group[i] +1,j], 1/sd_clan^2)
     }
     for (i in 1:4) {
