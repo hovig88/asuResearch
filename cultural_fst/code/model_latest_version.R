@@ -13,6 +13,10 @@ ethnic_group_of_clan <- vector()
 for (i in 0:8) {
   ethnic_group_of_clan <- c(ethnic_group_of_clan, unique(data$ethnic_group[data$clan == i]))
 }
+clan_of_subclan <- vector()
+for (i in 0:33) {
+  clan_of_subclan <- c(clan_of_subclan, unique(data$clan[data$subclan == i]))
+}
 
 data_list <- list(
   ethnic_group_of_clan=ethnic_group_of_clan,
