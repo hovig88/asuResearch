@@ -35,7 +35,7 @@ model {
     
     for (i in 1:745) {
       Y[i,j] ~ dbern(p[i,j])
-      logit(p[i,j]) <- base_clan[clan[i] + 1,j] +
+      logit(p[i,j]) <- clan_effect[clan[i] + 1,j] +
                        territorial_section_effect[territorial_section[i] + 1, j]*equals(ethnic_group[i], 3) + 
                        beta[2,j]*sex[i] +
                        beta[3,j]*school_yrs[i] +
@@ -46,7 +46,7 @@ model {
     ## PRIORS ##
     
     for (i in c(1:9)) {
-      base_clan[i,j] ~ dnorm(ethnic_group_effect[ethnic_group[i] +1,j], 1/sd_clan^2)
+      clan_effect[i,j] ~ dnorm(ethnic_group_effect[ethnic_group_of_clan[i]+1,j], 1/sd_clan^2)
     }
     for (i in 1:4) {
       territorial_section_effect[i,j] ~ dnorm(0, 1/sd_territorial_section^2)
@@ -78,7 +78,7 @@ model <- jags.model(textConnection(model_string), data=data_list, n.chains=n.cha
 nodes <- c("beta", "marital_status_effect", "sd_marital_status",
            "ethnic_group_effect", "sd_ethnic_group",
            "territorial_section_effect", "sd_territorial_section",
-           "base_clan", "sd_clan")
+           "clan_effect", "sd_clan")
 samples <- coda.samples(model=model, variable.names=nodes, n.iter=n.iter, thin=1)
 
 # end = Sys.time()
