@@ -41,8 +41,8 @@ model {
     
     for (i in 1:745) {
       Y[i,j] ~ dbern(p[i,j])
-      logit(p[i,j]) <- clan_effect[clan[i] + 1,j] +
-                       territorial_section_effect[territorial_section[i] + 1, j]*equals(ethnic_group[i], 3) + 
+      logit(p[i,j]) <- subclan_effect[subclan[i] + 1, j]*(1-equals(ethnic_group[i], 3)) +
+                       (clan_effect[clan[i] + 1,j] + territorial_section_effect[territorial_section[i] + 1, j])*equals(ethnic_group[i], 3) + 
                        beta[2,j]*sex[i] +
                        beta[3,j]*school_yrs[i] +
                        beta[4,j]*town_yrs[i] +
@@ -51,6 +51,9 @@ model {
     
     ## PRIORS ##
     
+    for (i in 1:34) {
+      subclan_effect[i,j] ~ dnorm(clan_effect[clan_of_subclan[i] + 1, j], 1/sd_subclan^2)
+    }
     for (i in c(1:9)) {
       clan_effect[i,j] ~ dnorm(ethnic_group_effect[ethnic_group_of_clan[i]+1,j], 1/sd_clan^2)
     }
@@ -74,6 +77,7 @@ model {
   sd_ethnic_group ~ dexp(3)
   sd_territorial_section ~ dexp(3)
   sd_clan ~ dexp(3)
+  sd_subclan ~ dexp(3)
   sd_marital_status ~ dexp(3)
 } "
 
