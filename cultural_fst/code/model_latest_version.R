@@ -37,9 +37,6 @@ model {
     for (i in 1:4) {
       ethnic_group_effect[i,j] ~ dnorm(beta[1,j], 1/sd_ethnic_group^2)
     }
-    for (i in 1:4) {
-      territorial_section_effect[i,j] ~ dnorm(0, 1/sd_territorial_section^2)
-    }
     beta[1,j] ~ dnorm(0, 1/0.75^2)
     for(i in 2:4){
       beta[i,j] ~ dnorm(0, 1/0.5^2)
