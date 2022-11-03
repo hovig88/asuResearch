@@ -74,7 +74,7 @@ model {
 #running the model in JAGS
 n.chains = 3
 n.iter = 1000
-model <- jags.model(textConnection(model_string), data=data, n.chains=n.chains)
+model <- jags.model(textConnection(model_string), data=data_list, n.chains=n.chains)
 nodes <- c("beta", "marital_status_effect", "sd_marital_status",
            "ethnic_group_effect", "sd_ethnic_group",
            "territorial_section_effect", "sd_territorial_section",
