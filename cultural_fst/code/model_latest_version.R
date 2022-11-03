@@ -19,6 +19,7 @@ model {
     for (i in 1:745) {
       Y[i,j] ~ dbern(p[i,j])
       logit(p[i,j]) <- base_clan[clan[i] + 1,j] +
+                       territorial_section_effect[territorial_section[i] + 1, j]*equals(ethnic_group[i], 3) + 
                        beta[2,j]*sex[i] +
                        beta[3,j]*school_yrs[i] +
                        beta[4,j]*town_yrs[i] +
@@ -30,8 +31,8 @@ model {
     for (i in c(1:3,7:9)) {
       base_clan[i,j] ~ dnorm(ethnic_group_effect[ethnic_group[i] +1,j], 1/sd_clan^2)
     }
-    for (i in 4:6) {
-      base_clan[i,j] ~ dnorm(territorial_section_effect[territorial_section[i] + 1,j]*equals(ethnic_group[i], 3), 1/sd_clan^2)
+    for (i in 1:4) {
+      territorial_section_effect[i,j] ~ dnorm(0, 1/sd_territorial_section^2)
     }
     for (i in 1:4) {
       ethnic_group_effect[i,j] ~ dnorm(beta[1,j], 1/sd_ethnic_group^2)
