@@ -20,7 +20,9 @@ for (i in 0:33) {
 
 data_list <- list(
   ethnic_group_of_clan=ethnic_group_of_clan,
+  clan_of_subclan=clan_of_subclan,
   Y=data$Y,
+  subclan=data$subclan,
   clan=data$clan,
   territorial_section=data$territorial_section,
   ethnic_group=data$ethnic_group,
