@@ -14,6 +14,18 @@ for (i in 0:8) {
   ethnic_group_of_clan <- c(ethnic_group_of_clan, unique(data$ethnic_group[data$clan == i]))
 }
 
+data_list <- list(
+  ethnic_group_of_clan=ethnic_group_of_clan,
+  Y=data$Y,
+  clan=data$clan,
+  territorial_section=data$territorial_section,
+  ethnic_group=data$ethnic_group,
+  sex=data$sex,
+  school_yrs=data$school_yrs,
+  town_yrs=data$town_yrs,
+  marital_status=data$marital_status
+)
+
 #building the model in JAGS
 model_string = "
 model {
