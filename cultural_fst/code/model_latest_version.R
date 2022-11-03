@@ -12,7 +12,7 @@ data$Y = data[,12:60]
 #building the model in JAGS
 model_string = "
 model {
-  for (j in c(1,49)) {
+  for (j in c(1:49)) {
   
     ## LIKELIHOOD ##
     
