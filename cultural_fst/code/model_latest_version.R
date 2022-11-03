@@ -9,6 +9,11 @@ data = read.csv("../data/fst_data_coded.csv", header = T)
 data = data[,c(1:11,11+order(apply(data[,12:60], MARGIN = 2, var), decreasing = TRUE))]
 data$Y = data[,12:60]
 
+ethnic_group_of_clan <- vector()
+for (i in 0:8) {
+  ethnic_group_of_clan <- c(ethnic_group_of_clan, unique(data$ethnic_group[data$clan == i]))
+}
+
 #building the model in JAGS
 model_string = "
 model {
