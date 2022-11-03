@@ -52,7 +52,7 @@ model {
   ## HYPERPRIORS ##
   
   sd_ethnic_group ~ dexp(3)
-  sd_territorial_section ~ dexp(2)
+  sd_territorial_section ~ dexp(3)
   sd_clan ~ dexp(3)
   sd_marital_status ~ dexp(3)
 } "
